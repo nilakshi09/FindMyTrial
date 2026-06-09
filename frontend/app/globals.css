@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: var(--font-inter);
+    --font-playfair: var(--font-playfair);
+
+    --background: 40 33% 97%;
+    --foreground: 215 60% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 60% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 60% 15%;
+    --primary: 215 60% 15%;
+    --primary-foreground: 40 33% 97%;
+    --secondary: 30 10% 91%;
+    --secondary-foreground: 215 60% 15%;
+    --muted: 30 10% 91%;
+    --muted-foreground: 213 12% 40%;
+    --accent: 38 69% 47%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 30 14% 89%;
+    --input: 30 14% 89%;
+    --ring: 38 69% 47%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+  .font-sans-display {
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+}
+
+/* ---- Hero gradient drift ---- */
+@keyframes hero-gradient-drift {
+  0% {
+    background-position: 30% 40%;
+  }
+  50% {
+    background-position: 70% 60%;
+  }
+  100% {
+    background-position: 30% 40%;
+  }
+}
+
+.animate-hero-gradient {
+  background-size: 200% 200%;
+  animation: hero-gradient-drift 8s ease-in-out infinite;
+}
+
+/* ---- Amber underline slide for nav links ---- */
+.nav-link-underline {
+  position: relative;
+}
+.nav-link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #C8922A;
+  transition: width 0.3s ease;
+}
+.nav-link-underline:hover::after {
+  width: 100%;
+}
+
+/* ---- Shimmer sweep for CTA button ---- */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.25) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.5s ease-in-out;
+}
+
+/* ---- Amber ring pulse on hover for How It Works circles ---- */
+@keyframes amber-ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(200, 146, 42, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(200, 146, 42, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(200, 146, 42, 0);
+  }
+}
+
+.animate-amber-ring-pulse {
+  animation: amber-ring-pulse 0.6s ease-out;
+}
+
+/* ---- Connecting line animation for How It Works ---- */
+@keyframes line-grow {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes line-grow-vertical {
+  from {
+    height: 0%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+.animate-line-grow {
+  animation: line-grow 1s ease-out forwards;
+}
+
+.animate-line-grow-vertical {
+  animation: line-grow-vertical 1s ease-out forwards;
+}
+
+/* ---- Pulse dot for live badge ---- */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.5);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ---- Word-by-word fade ---- */
+@keyframes word-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-word-fade {
+  animation: word-fade-in 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* ---- Headline line fade up ---- */
+@keyframes headline-line-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-headline-line {
+  animation: headline-line-fade 0.7s ease-out forwards;
+  opacity: 0;
+}
+
+/* ---- Section fade-in-up (enhanced) ---- */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* ---- Pulse glow ---- */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(200, 146, 42, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(200, 146, 42, 0.15);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ---- Testimonial card top-edge accent on hover ---- */
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+}
+.testimonial-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: linear-gradient(to bottom, #C8922A, transparent);
+  z-index: 2;
+  transition: height 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.testimonial-card:hover::before {
+  height: 3px;
+}
