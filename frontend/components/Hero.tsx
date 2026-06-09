@@ -108,7 +108,7 @@ export default function Hero({ onSearch, isLoading }: HeroProps) {
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          Describe your condition in plain English. We search 470,000+ registered
+          Describe your condition in plain English. We search 460,000+ registered
           trials and surface the ones actively recruiting patients like you — in
           seconds.
         </p>
