@@ -31,4 +31,4 @@ yarn-error.log*
 *.pem
 .vercel
 
-.development-plan.md
+development-plan.md
