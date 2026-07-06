@@ -2,31 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #FAF7F2;
+  --color-text: #0F1F3D;
+  --color-text-muted: #5A6475;
+  --color-border: #E8E2D9;
+  --color-card: #FFFFFF;
+  --color-accent: #C8922A;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
 @layer base {
   :root {
     --font-inter: var(--font-inter);
-    --font-playfair: var(--font-playfair);
+    --font-dm-serif: var(--font-dm-serif);
 
-    --background: 40 33% 97%;
-    --foreground: 215 60% 15%;
+    /* ---- Color Tokens ---- */
+    --background: 48 33% 97%;
+    --foreground: 220 50% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 215 60% 15%;
+    --card-foreground: 220 50% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 60% 15%;
-    --primary: 215 60% 15%;
-    --primary-foreground: 40 33% 97%;
-    --secondary: 30 10% 91%;
-    --secondary-foreground: 215 60% 15%;
-    --muted: 30 10% 91%;
-    --muted-foreground: 213 12% 40%;
+    --popover-foreground: 220 50% 10%;
+    --primary: 220 50% 10%;
+    --primary-foreground: 48 33% 97%;
+    --secondary: 36 14% 93%;
+    --secondary-foreground: 220 50% 10%;
+    --muted: 36 14% 93%;
+    --muted-foreground: 218 12% 42%;
     --accent: 38 69% 47%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 14% 89%;
-    --input: 30 14% 89%;
+    --border: 36 18% 90%;
+    --input: 36 18% 90%;
     --ring: 38 69% 47%;
     --radius: 0.75rem;
+
+    /* ---- Shadow System ---- */
+    --shadow-xs: 0 1px 2px rgba(10, 22, 40, 0.04);
+    --shadow-sm: 0 2px 8px rgba(10, 22, 40, 0.05);
+    --shadow-md: 0 4px 16px rgba(10, 22, 40, 0.06);
+    --shadow-lg: 0 8px 32px rgba(10, 22, 40, 0.08);
+    --shadow-xl: 0 16px 48px rgba(10, 22, 40, 0.12);
+    --shadow-glow-amber: 0 0 24px 4px rgba(200, 146, 42, 0.18);
+    --shadow-glow-amber-lg: 0 0 40px 8px rgba(200, 146, 42, 0.22);
+
+    /* ---- Radius System ---- */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-3xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* ---- Glass ---- */
+    --glass-bg: rgba(250, 247, 242, 0.72);
+    --glass-border: rgba(232, 226, 217, 0.5);
+    --glass-blur: 20px;
   }
 }
 
@@ -34,22 +72,60 @@
   * {
     @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-playfair), Georgia, serif;
+    font-family: var(--font-dm-serif), Georgia, serif;
+  }
+
+  /* Premium focus ring */
+  :focus-visible {
+    outline: 2px solid hsl(var(--accent));
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Better selection colors */
+  ::selection {
+    background-color: rgba(200, 146, 42, 0.2);
+    color: #0A1628;
   }
 }
 
 @layer utilities {
   .font-serif-display {
-    font-family: var(--font-playfair), Georgia, serif;
+    font-family: var(--font-dm-serif), Georgia, serif;
   }
   .font-sans-display {
     font-family: var(--font-inter), system-ui, sans-serif;
   }
 }
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
 
 /* ---- Hero gradient drift ---- */
 @keyframes hero-gradient-drift {
@@ -66,7 +142,34 @@
 
 .animate-hero-gradient {
   background-size: 200% 200%;
-  animation: hero-gradient-drift 8s ease-in-out infinite;
+  animation: hero-gradient-drift 12s ease-in-out infinite;
+}
+
+/* ---- Floating orbs for hero ---- */
+@keyframes float-orb {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+.animate-float-orb {
+  animation: float-orb 20s ease-in-out infinite;
+}
+
+.animate-float-orb-delayed {
+  animation: float-orb 25s ease-in-out infinite;
+  animation-delay: -8s;
+}
+
+.animate-float-orb-slow {
+  animation: float-orb 30s ease-in-out infinite;
+  animation-delay: -15s;
 }
 
 /* ---- Amber underline slide for nav links ---- */
@@ -80,8 +183,9 @@
   left: 0;
   width: 0;
   height: 2px;
-  background-color: #C8922A;
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, #C8922A, #E8B84A);
+  transition: width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 1px;
 }
 .nav-link-underline:hover::after {
   width: 100%;
@@ -101,11 +205,11 @@
   background-image: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.3) 50%,
     transparent 100%
   );
   background-size: 200% 100%;
-  animation: shimmer-sweep 1.5s ease-in-out;
+  animation: shimmer-sweep 1.8s ease-in-out;
 }
 
 /* ---- Amber ring pulse on hover for How It Works circles ---- */
@@ -114,7 +218,7 @@
     box-shadow: 0 0 0 0 rgba(200, 146, 42, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 12px rgba(200, 146, 42, 0);
+    box-shadow: 0 0 0 14px rgba(200, 146, 42, 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(200, 146, 42, 0);
@@ -122,7 +226,7 @@
 }
 
 .animate-amber-ring-pulse {
-  animation: amber-ring-pulse 0.6s ease-out;
+  animation: amber-ring-pulse 0.7s ease-out;
 }
 
 /* ---- Connecting line animation for How It Works ---- */
@@ -145,11 +249,11 @@
 }
 
 .animate-line-grow {
-  animation: line-grow 1s ease-out forwards;
+  animation: line-grow 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .animate-line-grow-vertical {
-  animation: line-grow-vertical 1s ease-out forwards;
+  animation: line-grow-vertical 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 /* ---- Pulse dot for live badge ---- */
@@ -159,8 +263,8 @@
     transform: scale(1);
   }
   50% {
-    opacity: 0.5;
-    transform: scale(1.5);
+    opacity: 0.4;
+    transform: scale(1.6);
   }
 }
 
@@ -189,7 +293,7 @@
 @keyframes headline-line-fade {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -198,11 +302,11 @@
 }
 
 .animate-headline-line {
-  animation: headline-line-fade 0.7s ease-out forwards;
+  animation: headline-line-fade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   opacity: 0;
 }
 
-/* ---- Section fade-in-up (enhanced) ---- */
+/* ---- Section fade-in-up ---- */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -215,7 +319,7 @@
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
+  animation: fade-in-up 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 /* ---- Pulse glow ---- */
@@ -224,12 +328,33 @@
     box-shadow: 0 0 0 0 rgba(200, 146, 42, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px 4px rgba(200, 146, 42, 0.15);
+    box-shadow: 0 0 24px 6px rgba(200, 146, 42, 0.15);
   }
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* ---- Skeleton shimmer loading ---- */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(36 14% 93%) 25%,
+    hsl(36 14% 96%) 50%,
+    hsl(36 14% 93%) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
 /* ---- Testimonial card top-edge accent on hover ---- */
@@ -244,10 +369,151 @@
   left: 0;
   right: 0;
   height: 0;
-  background: linear-gradient(to bottom, #C8922A, transparent);
+  background: linear-gradient(90deg, #C8922A, #E8B84A);
   z-index: 2;
-  transition: height 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .testimonial-card:hover::before {
   height: 3px;
+}
+
+/* ---- Premium card hover glow ---- */
+.card-hover-glow {
+  position: relative;
+}
+.card-hover-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  background: linear-gradient(135deg, rgba(200, 146, 42, 0.1), transparent 50%);
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.card-hover-glow:hover::after {
+  opacity: 1;
+}
+
+/* ---- Search bar focus glow ---- */
+.search-focus-glow {
+  transition: box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.search-focus-glow:focus-within {
+  box-shadow: 0 0 0 4px rgba(200, 146, 42, 0.12), 0 4px 24px rgba(10, 22, 40, 0.08);
+  border-color: rgba(200, 146, 42, 0.4);
+  transform: scale(1.01);
+}
+
+/* ---- CTA Gradient Animation ---- */
+@keyframes cta-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-cta-gradient {
+  background-size: 200% 200%;
+  animation: cta-gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #E8E2D9 25%,
+    #FAF7F2 50%,
+    #E8E2D9 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@media print {
+  /* Hide all navigation and interactive elements */
+  nav,
+  footer,
+  button,
+  [role="button"],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset background to white, text to black */
+  body,
+  main,
+  section,
+  div {
+    background: white !important;
+    background-image: none !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove gradients from hero and sections */
+  [class*="gradient"] {
+    background: white !important;
+  }
+
+  /* Typography for print */
+  h1, h2, h3 {
+    color: black !important;
+    font-size: inherit;
+  }
+
+  p, li, span {
+    color: #333 !important;
+  }
+
+  /* Links: show URL after link text */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+    color: #666;
+  }
+
+  /* Page breaks between trials in share page */
+  .trial-section {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .trial-section:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Borders print as light gray */
+  [class*="border"] {
+    border-color: #ddd !important;
+  }
+
+  /* Ensure full width */
+  .max-w-7xl,
+  .max-w-4xl,
+  .max-w-xl {
+    max-width: 100% !important;
+  }
+
+  /* Remove padding that wastes print space */
+  main {
+    padding-top: 0 !important;
+  }
+
+  /* Print header visible only when printing */
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* Hide print-only elements on screen */
+.print-only {
+  display: none;
 }

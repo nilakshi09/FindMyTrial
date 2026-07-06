@@ -1,60 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-interface StudyProtocolSection {
-  identificationModule?: {
-    briefTitle?: string;
-    nctId?: string;
-  };
-  statusModule?: {
-    overallStatus?: string;
-  };
-  conditionsModule?: {
-    conditions?: string[];
-  };
-  designModule?: {
-    phases?: string[];
-  };
-  descriptionModule?: {
-    briefSummary?: string;
-  };
-  eligibilityModule?: {
-    eligibilityCriteria?: string;
-    sex?: string;
-    minimumAge?: string;
-    maximumAge?: string;
-  };
-  contactsLocationsModule?: {
-    locations?: Array<{
-      city?: string;
-      stateOrProvince?: string;
-      country?: string;
-    }>;
-  };
-}
+import { redis, buildCacheKey } from '@/lib/redis';
+import {
+  StudyProtocolSection,
+  ParsedIntent,
+  humanizePhase,
+  calculateDuration,
+  detectCompensation,
+  parseNaturalLanguage,
+  buildApiQuery,
+} from '@findmytrial/shared';
 
 interface Study {
   protocolSection?: StudyProtocolSection;
 }
 
-const STOP_WORDS = new Set([
-  'i', 'me', 'my', 'have', 'has', 'had', 'a', 'an', 'the', 'and', 'or',
-  'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'is',
-  'was', 'are', 'were', 'be', 'been', 'being', 'it', 'its', 'that', 'this',
-  'these', 'those', 'am', 'do', 'does', 'did', 'will', 'would', 'could',
-  'should', 'may', 'might', 'shall', 'can', 'not', 'no', 'nor', 'so',
-  'if', 'then', 'than', 'too', 'very', 'just', 'about', 'also', 'now',
-  'current', 'stopped', 'stopped', 'working', 'treatment', 'taking',
-  'diagnosed', 'with', 'years', 'year', 'old', 'ago', 'still',
-]);
 
-function extractSearchTerms(input: string): string {
-  const words = input
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
-  return words.join(' ');
-}
+
 
 function summarizeCriteria(criteria: string): string {
   const lines = criteria.split('\n').filter((l) => l.trim());
@@ -83,32 +44,103 @@ function simplifySummary(summary: string): string {
   return truncated + '...';
 }
 
+
+
+// TODO Phase 3: extract to shared/utils/fetch-with-retry.ts
+async function fetchWithRetry(
+  url: string,
+  maxRetries = 2,
+  baseDelay = 1000
+): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (response.status === 429) {
+        const retryAfter = parseInt(response.headers.get('Retry-After') ?? '30');
+        await new Promise(r => setTimeout(r, retryAfter * 1000));
+        continue;
+      }
+
+      if (response.status >= 500 && attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, baseDelay * Math.pow(2, attempt)));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, baseDelay * Math.pow(2, attempt)));
+      }
+    }
+  }
+
+  throw lastError ?? new Error('Request failed after retries');
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get('q');
+  const q = searchParams.get('q');
+  const locationParam = searchParams.get('location') ?? '';
+  const pageToken = searchParams.get('pageToken') ?? undefined;
 
-  if (!query || query.trim().length === 0) {
+  if (!q || q.trim().length < 3) {
+    return NextResponse.json(
+      { error: 'Query must be at least 3 characters', code: 'QUERY_TOO_SHORT' },
+      { status: 400 }
+    );
+  }
+
+  const sanitizedQuery = q
+    .replace(/<[^>]*>/g, '')        // remove HTML tags
+    .replace(/javascript:/gi, '')    // remove javascript: protocol
+    .trim();
+
+  const intent = parseNaturalLanguage(sanitizedQuery);
+
+  // Explicit location input fills in when query text has no embedded location
+  if (!intent.location && locationParam.trim()) {
+    intent.location = locationParam.trim();
+  }
+
+  if (!intent.condition && intent.modifiers.length === 0 && intent.clinicalSynonyms.length === 0) {
     return NextResponse.json({ results: [] });
   }
 
-  const searchTerm = extractSearchTerms(query);
-
-  if (!searchTerm) {
-    return NextResponse.json({ results: [] });
+  // Check cache (skip for paginated requests)
+  if (!pageToken) {
+    const cacheKey = buildCacheKey(sanitizedQuery, locationParam);
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        console.log('[Cache] HIT:', cacheKey);
+        return NextResponse.json(cached);
+      }
+    } catch (cacheError) {
+      // Cache miss or Redis unavailable — continue to live fetch
+      console.warn('[Cache] Redis error:', cacheError);
+    }
   }
+
+  const params = buildApiQuery(intent, pageToken);
+  const ctgovUrl = `https://clinicaltrials.gov/api/v2/studies?${params.toString()}`;
 
   try {
-    const url = `https://clinicaltrials.gov/api/v2/studies?filter.overallStatus=RECRUITING&pageSize=5&query.term=${encodeURIComponent(searchTerm)}`;
-
-    const response = await fetch(url, {
-      headers: {
-        Accept: 'application/json',
-      },
-      next: { revalidate: 300 },
-    });
+    const response = await fetchWithRetry(ctgovUrl);
 
     if (!response.ok) {
-      throw new Error(`API returned ${response.status}`);
+      return NextResponse.json(
+        {
+          error: 'The trial database is temporarily unavailable. Please try again in a moment.',
+          code: 'API_ERROR'
+        },
+        { status: 503 }
+      );
     }
 
     const data = await response.json();
@@ -131,8 +163,7 @@ export async function GET(request: NextRequest) {
             .join(', ')
         : 'Location not specified';
 
-      const phases = design.phases?.filter((p) => p) || [];
-      const phaseStr = phases.length > 0 ? phases.join(' / ') : '';
+      const phaseStr = humanizePhase(design.phases);
 
       const ageRange = [
         elig.minimumAge || '',
@@ -148,24 +179,61 @@ export async function GET(request: NextRequest) {
         : summarizeCriteria(elig.eligibilityCriteria || '').substring(0, 50);
 
       return {
+        nctId: id.nctId ?? '',
         title: id.briefTitle || 'Untitled Trial',
         status: status.overallStatus || 'Unknown',
         conditions: conditions.conditions || [],
         phase: phaseStr,
         summary: simplifySummary(desc.briefSummary || ''),
         location: locationStr,
-        duration: '',
-        compensation: '',
+        duration: calculateDuration(
+          study.protocolSection?.statusModule?.startDateStruct,
+          study.protocolSection?.statusModule?.completionDateStruct
+        ),
+        compensation: detectCompensation(
+          study.protocolSection?.descriptionModule?.briefSummary,
+          study.protocolSection?.descriptionModule?.detailedDescription,
+          study.protocolSection?.eligibilityModule?.eligibilityCriteria
+        ),
         ages: agesStr,
       };
     });
 
-    return NextResponse.json({ results });
+    const nextPageToken = data.nextPageToken ?? undefined;
+
+    const responsePayload = {
+      results,
+      nextPageToken,
+      totalCount: data.totalCount,
+      query: sanitizedQuery,
+    };
+
+    // Store in cache — 5 minute TTL (skip for paginated requests)
+    if (!pageToken) {
+      const cacheKey = buildCacheKey(sanitizedQuery, locationParam);
+      try {
+        await redis.setex(cacheKey, 300, responsePayload);
+        console.log('[Cache] SET:', cacheKey);
+      } catch (cacheError) {
+        // Non-fatal — continue without caching
+        console.warn('[Cache] Could not cache result:', cacheError);
+      }
+    }
+
+    return NextResponse.json(responsePayload);
   } catch (error) {
     console.error('ClinicalTrials.gov API error:', error);
+
+    const isTimeout = error instanceof Error && error.name === 'TimeoutError';
+
     return NextResponse.json(
-      { results: [], error: 'Failed to fetch trial data. Please try again.' },
-      { status: 500 }
+      {
+        error: isTimeout
+          ? 'The trial database is responding slowly. Please try again in a moment.'
+          : 'Unable to reach the trial database. Please check your connection and try again.',
+        code: isTimeout ? 'TIMEOUT' : 'NETWORK_ERROR'
+      },
+      { status: 503 }
     );
   }
 }

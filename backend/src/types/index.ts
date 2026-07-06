@@ -5,6 +5,8 @@ export interface StudyProtocolSection {
   };
   statusModule?: {
     overallStatus?: string;
+    startDateStruct?: { date?: string };
+    completionDateStruct?: { date?: string };
   };
   conditionsModule?: {
     conditions?: string[];
@@ -14,6 +16,7 @@ export interface StudyProtocolSection {
   };
   descriptionModule?: {
     briefSummary?: string;
+    detailedDescription?: string;
   };
   eligibilityModule?: {
     eligibilityCriteria?: string;
@@ -35,6 +38,7 @@ export interface Study {
 }
 
 export interface TrialResult {
+  nctId: string;
   title: string;
   status: string;
   conditions: string[];

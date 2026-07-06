@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { FileText, Search, BookOpen } from 'lucide-react';
-import { useScrollAnimation } from '@/hooks/use-scroll-animation';
+import { motion, useInView } from 'framer-motion';
 
 const steps = [
   {
@@ -28,47 +28,77 @@ const steps = [
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+  },
+};
+
 function StepNode({
   step,
   index,
-  isVisible,
 }: {
   step: (typeof steps)[0];
   index: number;
-  isVisible: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div
-      className={`flex flex-col items-center text-center transition-all duration-700 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
-      style={{ transitionDelay: `${index * 150}ms` }}
+    <motion.div
+      className="flex flex-col items-center text-center"
+      variants={itemVariants}
     >
       <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-amber font-sans mb-3">
         Step {step.number}
       </span>
 
+      {/* Gradient border circle with glow */}
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 cursor-default ${
-          hovered ? 'scale-[1.08] animate-amber-ring-pulse' : ''
-        }`}
-        style={{
-          background: hovered
-            ? 'linear-gradient(135deg, #C8922A 0%, #E8B84A 100%)'
-            : 'linear-gradient(135deg, #F5E6C8 0%, #EDD9B4 100%)',
-        }}
+        className="relative cursor-default"
       >
-        <step.icon
-          size={30}
-          className={`transition-colors duration-300 ${
-            hovered ? 'text-white' : 'text-amber'
+        {/* Outer gradient border ring */}
+        <div
+          className={`absolute -inset-[3px] rounded-full transition-all duration-300 ${
+            hovered
+              ? 'opacity-100 shadow-[0_0_24px_6px_rgba(200,146,42,0.35)]'
+              : 'opacity-60'
           }`}
-          strokeWidth={1.5}
+          style={{
+            background: 'linear-gradient(135deg, #C8922A 0%, #E8B84A 50%, #C8922A 100%)',
+          }}
         />
+        <motion.div
+          animate={hovered ? { scale: 1.06 } : { scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="relative w-20 h-20 rounded-full flex items-center justify-center"
+          style={{
+            background: hovered
+              ? 'linear-gradient(135deg, #C8922A 0%, #E8B84A 100%)'
+              : 'linear-gradient(135deg, #F5E6C8 0%, #EDD9B4 100%)',
+          }}
+        >
+          <step.icon
+            size={30}
+            className={`transition-colors duration-300 ${
+              hovered ? 'text-white' : 'text-amber'
+            }`}
+            strokeWidth={1.5}
+          />
+        </motion.div>
       </div>
 
       <h3 className="font-serif text-[22px] font-bold text-navy mt-5">
@@ -77,79 +107,117 @@ function StepNode({
       <p className="mt-2 text-[15px] text-slate leading-relaxed max-w-[240px]">
         {step.description}
       </p>
-    </div>
+    </motion.div>
   );
 }
 
 export default function HowItWorks() {
-  const { ref, isVisible } = useScrollAnimation();
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
 
   return (
     <section
       id="how-it-works"
-      className="py-24 md:py-32 bg-[#F5EFE6]"
-      ref={ref}
+      className="py-24 md:py-32 bg-[#F5EFE6] overflow-hidden"
+      ref={sectionRef}
     >
       <div className="max-w-6xl mx-auto px-6">
-        <div
-          className={`text-center transition-all duration-700 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
+        {/* Section Header */}
+        <motion.div
+          className="text-center relative"
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
         >
-          <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-amber font-sans">
-            How It Works
-          </span>
-          <h2 className="font-serif text-3xl md:text-[40px] font-bold text-navy mt-3 leading-[1.15]">
+          {/* Subtle gradient orb behind title */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[160px] rounded-full pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, rgba(200,146,42,0.08) 0%, transparent 70%)',
+            }}
+          />
+
+          {/* Label with decorative flanking lines */}
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <span className="block w-8 h-[1.5px] bg-amber/40 rounded-full" />
+            <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-amber font-sans">
+              How It Works
+            </span>
+            <span className="block w-8 h-[1.5px] bg-amber/40 rounded-full" />
+          </div>
+
+          <h2 className="relative font-serif text-3xl md:text-[40px] font-bold text-navy leading-[1.15]">
             From your words to your match — in three steps.
           </h2>
-          <p className="mt-4 text-base text-slate max-w-md mx-auto">
+          <p className="mt-4 text-base text-slate max-w-md mx-auto relative">
             No forms. No clinical jargon. No dead ends.
           </p>
-        </div>
+        </motion.div>
 
         {/* Desktop: horizontal with connecting line */}
-        <div className="hidden md:flex items-start justify-between mt-16 relative">
+        <motion.div
+          className="hidden md:flex items-start justify-between mt-16 relative"
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {/* Connecting dashed line */}
-          <div className="absolute top-[70px] left-[16.67%] right-[16.67%] h-[2px]">
-            <div
-              className={`h-full border-t-2 border-dashed border-amber/40 ${
-                isVisible ? 'animate-line-grow' : 'w-0'
-              }`}
+          <div className="absolute top-[70px] left-[16.67%] right-[16.67%] h-[2px] overflow-hidden">
+            <motion.div
+              className="h-full border-t-2 border-dashed border-amber/40"
+              initial={{ scaleX: 0 }}
+              animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+              transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+              style={{ transformOrigin: 'left center' }}
             />
           </div>
 
           {steps.map((step, i) => (
             <div key={step.number} className="flex-1 flex justify-center">
-              <StepNode step={step} index={i} isVisible={isVisible} />
+              <StepNode step={step} index={i} />
             </div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Mobile: vertical timeline */}
-        <div className="md:hidden mt-16 relative pl-10">
+        <motion.div
+          className="md:hidden mt-16 relative pl-10"
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {/* Vertical connecting line */}
-          <div className="absolute left-[39px] top-0 bottom-0 w-[2px]">
-            <div
-              className={`w-full border-l-2 border-dashed border-amber/40 ${
-                isVisible ? 'animate-line-grow-vertical' : 'h-0'
-              }`}
+          <div className="absolute left-[23px] top-0 bottom-0 w-[2px] overflow-hidden">
+            <motion.div
+              className="w-full h-full border-l-2 border-dashed border-amber/40"
+              initial={{ scaleY: 0 }}
+              animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+              style={{ transformOrigin: 'top center' }}
             />
           </div>
 
           <div className="space-y-12">
             {steps.map((step, i) => (
-              <div
+              <motion.div
                 key={step.number}
-                className={`flex items-start gap-5 transition-all duration-700 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${i * 150}ms` }}
+                className="flex items-start gap-5"
+                variants={itemVariants}
               >
-                {/* Circle on the line */}
-                <div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-[#F5E6C8] to-[#EDD9B4]">
-                  <step.icon size={18} className="text-amber" strokeWidth={1.5} />
+                {/* Circle on the line — larger for touch targets */}
+                <div className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-[#F5E6C8] to-[#EDD9B4] relative -ml-[25px] shadow-sm">
+                  <div
+                    className="absolute -inset-[2px] rounded-full opacity-50"
+                    style={{
+                      background: 'linear-gradient(135deg, #C8922A 0%, #E8B84A 100%)',
+                    }}
+                  />
+                  <div className="relative w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-[#F5E6C8] to-[#EDD9B4]">
+                    <step.icon size={20} className="text-amber" strokeWidth={1.5} />
+                  </div>
                 </div>
-                <div className="pt-0.5">
+                <div className="pt-1">
                   <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-amber font-sans">
                     Step {step.number}
                   </span>
@@ -160,10 +228,10 @@ export default function HowItWorks() {
                     {step.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

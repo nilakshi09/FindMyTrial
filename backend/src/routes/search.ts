@@ -1,6 +1,51 @@
 import { Router, Request, Response } from 'express';
-import { extractSearchTerms, simplifySummary, summarizeCriteria } from '../utils/search-helpers';
+import { simplifySummary, summarizeCriteria } from '../utils/search-helpers';
 import type { Study, TrialResult } from '../types';
+import {
+  humanizePhase,
+  calculateDuration,
+  detectCompensation,
+  parseNaturalLanguage,
+  buildApiQuery
+} from '@findmytrial/shared';
+
+
+// TODO Phase 3: extract to shared/utils/fetch-with-retry.ts
+async function fetchWithRetry(
+  url: string,
+  maxRetries = 2,
+  baseDelay = 1000
+): Promise<globalThis.Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await globalThis.fetch(url, {
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (response.status === 429) {
+        const retryAfter = parseInt(response.headers.get('Retry-After') ?? '30');
+        await new Promise(r => setTimeout(r, retryAfter * 1000));
+        continue;
+      }
+
+      if (response.status >= 500 && attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, baseDelay * Math.pow(2, attempt)));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, baseDelay * Math.pow(2, attempt)));
+      }
+    }
+  }
+
+  throw lastError ?? new Error('Request failed after retries');
+}
 
 export const searchRouter = Router();
 
@@ -11,24 +56,26 @@ searchRouter.get('/', async (req: Request, res: Response) => {
     return res.json({ results: [] });
   }
 
-  const searchTerm = extractSearchTerms(query);
+  const intent = parseNaturalLanguage(query);
 
-  if (!searchTerm) {
+  if (!intent.condition && intent.modifiers.length === 0 && intent.clinicalSynonyms.length === 0) {
     return res.json({ results: [] });
   }
 
-  try {
-    const url = `https://clinicaltrials.gov/api/v2/studies?filter.overallStatus=RECRUITING&pageSize=5&query.term=${encodeURIComponent(searchTerm)}`;
+  const params = buildApiQuery(intent);
+  const ctgovUrl = `https://clinicaltrials.gov/api/v2/studies?${params.toString()}`;
 
-    const response = await fetch(url, {
-      headers: { Accept: 'application/json' },
-    });
+  try {
+    const response = await fetchWithRetry(ctgovUrl);
 
     if (!response.ok) {
-      throw new Error(`ClinicalTrials.gov API returned ${response.status}`);
+      return res.status(503).json({
+        error: 'The trial database is temporarily unavailable. Please try again in a moment.',
+        code: 'API_ERROR'
+      });
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as { studies?: Study[] };
     const studies: Study[] = data.studies || [];
 
     const results: TrialResult[] = studies.map((study) => {
@@ -48,8 +95,7 @@ searchRouter.get('/', async (req: Request, res: Response) => {
             .join(', ')
         : 'Location not specified';
 
-      const phases = design.phases?.filter((p) => p) || [];
-      const phaseStr = phases.length > 0 ? phases.join(' / ') : '';
+      const phaseStr = humanizePhase(design.phases);
 
       const ageRange = [
         elig.minimumAge || '',
@@ -65,14 +111,22 @@ searchRouter.get('/', async (req: Request, res: Response) => {
         : summarizeCriteria(elig.eligibilityCriteria || '').substring(0, 50);
 
       return {
+        nctId: id.nctId ?? '',
         title: id.briefTitle || 'Untitled Trial',
         status: status.overallStatus || 'Unknown',
         conditions: conditions.conditions || [],
         phase: phaseStr,
         summary: simplifySummary(desc.briefSummary || ''),
         location: locationStr,
-        duration: '',
-        compensation: '',
+        duration: calculateDuration(
+          study.protocolSection?.statusModule?.startDateStruct,
+          study.protocolSection?.statusModule?.completionDateStruct
+        ),
+        compensation: detectCompensation(
+          study.protocolSection?.descriptionModule?.briefSummary,
+          study.protocolSection?.descriptionModule?.detailedDescription,
+          study.protocolSection?.eligibilityModule?.eligibilityCriteria
+        ),
         ages: agesStr,
       };
     });
@@ -80,9 +134,14 @@ searchRouter.get('/', async (req: Request, res: Response) => {
     return res.json({ results });
   } catch (error) {
     console.error('ClinicalTrials.gov API error:', error);
-    return res.status(500).json({
-      results: [],
-      error: 'Failed to fetch trial data. Please try again.',
+
+    const isTimeout = error instanceof Error && error.name === 'TimeoutError';
+
+    return res.status(503).json({
+      error: isTimeout
+        ? 'The trial database is responding slowly. Please try again in a moment.'
+        : 'Unable to reach the trial database. Please check your connection and try again.',
+      code: isTimeout ? 'TIMEOUT' : 'NETWORK_ERROR'
     });
   }
 });
