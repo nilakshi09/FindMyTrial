@@ -10,6 +10,8 @@ import {
   buildApiQuery,
 } from '@findmytrial/shared';
 
+export const dynamic = 'force-dynamic';
+
 interface Study {
   protocolSection?: StudyProtocolSection;
 }

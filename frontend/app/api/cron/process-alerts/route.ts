@@ -9,6 +9,8 @@ import {
   detectCompensation,
 } from '@findmytrial/shared';
 
+export const dynamic = 'force-dynamic';
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Protect this endpoint — only callable with the correct secret

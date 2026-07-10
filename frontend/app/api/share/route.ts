@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 function generateShortId(): string {
   // Generate an 8-character alphanumeric ID (friendlier than full UUID)
   return uuidv4().replace(/-/g, '').slice(0, 8).toUpperCase();
