@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthCard from '@/components/AuthCard';
 
@@ -16,64 +14,121 @@ const GoogleIcon = () => (
   </svg>
 );
 
-function SignInForm() {
+export default function SignUpPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  
-  const searchParams = useSearchParams();
-  const urlError = searchParams.get('error');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!email || !password) {
-      setErrorMsg('Please enter both email and password.');
+    if (!name || !email || !password) {
+      setErrorMsg('Please fill in all fields.');
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrorMsg('Password must be at least 8 characters.');
       return;
     }
 
     setLoading(true);
-    const result = await signIn('credentials', { 
-      email, 
-      password,
-      redirect: false 
-    });
-    setLoading(false);
 
-    if (result?.error) {
-      setErrorMsg('Invalid email or password. Please try again.');
-    } else if (result?.ok) {
-      window.location.href = '/';
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 409 || data?.message?.toLowerCase().includes('already registered')) {
+          throw new Error('This email is already registered.');
+        }
+        throw new Error(data.message || 'Something went wrong during sign up.');
+      }
+
+      // Automatically sign in after successful sign up
+      const signInResult = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        setErrorMsg('Account created, but failed to sign in automatically.');
+        setLoading(false);
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Network error. Please try again later.');
+      setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignUp = () => {
     signIn('google', { callbackUrl: '/' });
   };
 
   return (
-    <AuthCard 
-      bottomLinkText="Don't have an account?" 
-      bottomLinkActionText="Sign up" 
-      bottomLinkHref="/auth/signup"
+    <AuthCard
+      bottomLinkText="Already have an account?"
+      bottomLinkActionText="Sign in"
+      bottomLinkHref="/auth/signin"
     >
       <div className="text-center mb-8">
-        <h2 className="font-serif text-2xl font-bold text-navy tracking-tight">Welcome back</h2>
+        <h2 className="font-serif text-2xl font-bold text-navy tracking-tight">Create your account</h2>
         <p className="mt-2 text-sm text-slate-500">
-          Sign in to your account
+          Find clinical trials that match your situation
         </p>
       </div>
 
-      {(errorMsg || urlError) && (
+      {errorMsg && (
         <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm text-center font-medium">
-          {errorMsg || 'Something went wrong. Please try again.'}
+          {errorMsg}
         </div>
       )}
 
+      <button
+        type="button"
+        onClick={handleGoogleSignUp}
+        className="w-full flex items-center justify-center bg-white border border-warm-gray text-navy text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 hover:bg-slate-50 active:scale-[0.98]"
+      >
+        <GoogleIcon />
+        Sign up with Google
+      </button>
+
+      <div className="my-6 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-warm-gray after:mt-0.5 after:flex-1 after:border-t after:border-warm-gray">
+        <p className="mx-4 mb-0 text-center text-sm text-slate-500 font-medium whitespace-nowrap">or sign up with email</p>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-navy mb-1.5">
+            Full Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            required
+            placeholder="Jane Doe"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (errorMsg) setErrorMsg('');
+            }}
+            className="w-full border border-warm-gray rounded-xl px-4 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber bg-transparent transition-colors"
+          />
+        </div>
+
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-navy mb-1.5">
             Email address
@@ -95,20 +150,15 @@ function SignInForm() {
         </div>
         
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label htmlFor="password" className="block text-sm font-medium text-navy">
-              Password
-            </label>
-            <Link href="/auth/forgot-password" className="text-sm font-medium text-amber hover:text-amber/80 transition-colors">
-              Forgot password?
-            </Link>
-          </div>
+          <label htmlFor="password" className="block text-sm font-medium text-navy mb-1.5">
+            Password
+          </label>
           <div className="relative">
             <input
               id="password"
               name="password"
               type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
               placeholder="••••••••"
               value={password}
@@ -134,35 +184,10 @@ function SignInForm() {
           className="w-full relative overflow-hidden bg-amber text-white text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-glow-amber active:scale-[0.98] mt-2"
           disabled={loading}
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
 
-      <div className="mt-8 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-warm-gray after:mt-0.5 after:flex-1 after:border-t after:border-warm-gray">
-        <p className="mx-4 mb-0 text-center text-sm text-slate-500 font-medium">or</p>
-      </div>
-
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        className="mt-6 w-full flex items-center justify-center bg-white border border-warm-gray text-navy text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 hover:bg-slate-50 active:scale-[0.98]"
-      >
-        <GoogleIcon />
-        Continue with Google
-      </button>
-
     </AuthCard>
-  );
-}
-
-export default function SignInPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-ivory">
-        <div className="w-6 h-6 border-2 border-amber/30 border-t-amber rounded-full animate-spin" />
-      </div>
-    }>
-      <SignInForm />
-    </Suspense>
   );
 }
