@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: 'How is this different from searching ClinicalTrials.gov directly?',
-    a: 'ClinicalTrials.gov was built for researchers, not patients. It requires clinical terminology, manual filtering, and the ability to parse dense protocol language. FindMyTrial accepts plain English, filters for you, and rewrites every result so a non-expert can understand it in under a minute.',
+    a: 'ClinicalTrials.gov was built for researchers, not patients. It requires clinical terminology, manual filtering, and the ability to parse dense protocol language. FindMyTrial accepts plain english, filters for you, and rewrites every result so a non-expert can understand it in under a minute.',
   },
 ];
 
