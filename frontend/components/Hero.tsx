@@ -267,6 +267,7 @@ export default function Hero({ onSearch, location, onLocationChange, isLoading }
             <input
               name="search"
               type="text"
+              autoComplete="off"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setShowHistory(true)}
@@ -294,40 +295,42 @@ export default function Hero({ onSearch, location, onLocationChange, isLoading }
               )}
             </button>
 
-            {/* History dropdown */}
-            {showHistory && history.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-warm-gray rounded-xl shadow-lg z-50 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-warm-gray">
-                  <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-                    Recent searches
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => { clearHistory(); setShowHistory(false); }}
-                    className="text-xs text-slate-400 hover:text-navy transition-colors"
-                  >
-                    Clear history
-                  </button>
-                </div>
-                {history.map((entry) => (
-                  <button
-                    key={entry.timestamp}
-                    type="button"
-                    onClick={() => {
-                      setQuery(entry.query);
-                      onSearch(entry.query);
-                      addToHistory(entry.query);
-                      setShowHistory(false);
-                    }}
-                    className="w-full text-left px-4 py-3 text-sm text-navy hover:bg-ivory transition-colors flex items-center gap-2 border-b border-warm-gray last:border-0"
-                  >
-                    <span className="text-slate-500 opacity-70">🕐</span>
-                    {entry.query}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
+
+          {/* History dropdown — normal flow, pushes content below */}
+          {showHistory && history.length > 0 && (
+            <div className="mt-1 bg-white border border-warm-gray rounded-xl shadow-lg z-50 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-warm-gray">
+                <span className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+                  Recent searches
+                </span>
+                <button
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); clearHistory(); setShowHistory(false); }}
+                  className="text-xs text-slate-400 hover:text-navy transition-colors"
+                >
+                  Clear history
+                </button>
+              </div>
+              {history.map((entry) => (
+                <button
+                  key={entry.timestamp}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setQuery(entry.query);
+                    onSearch(entry.query);
+                    addToHistory(entry.query);
+                    setShowHistory(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm text-navy hover:bg-ivory transition-colors flex items-center gap-2 border-b border-warm-gray last:border-0"
+                >
+                  <span className="text-slate-500 opacity-70">🕐</span>
+                  {entry.query}
+                </button>
+              ))}
+            </div>
+          )}
           {query.length > 0 && query.trim().length < 3 && (
             <p className="text-sm text-slate-500 mt-1">
               Describe your condition in a few words to search

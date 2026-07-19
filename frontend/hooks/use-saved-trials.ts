@@ -41,14 +41,21 @@ export function useSavedTrials() {
     if (session?.user) {
       fetch('/api/user/saved')
         .then(r => r.json())
-        .then(data => setSavedTrials(
-          data.map((d: any) => ({ 
-            nctId: d.nctId, 
-            trial: d.trialData, 
-            savedAt: d.savedAt, 
-            notes: d.notes 
-          }))
-        ));
+        .then(data => {
+          if (Array.isArray(data)) {
+            setSavedTrials(
+              data.map((d: any) => ({ 
+                nctId: d.nctId, 
+                trial: d.trialData, 
+                savedAt: d.savedAt, 
+                notes: d.notes 
+              }))
+            );
+          } else {
+            console.warn('[FindMyTrial] /api/user/saved did not return an array, falling back to localStorage', data);
+            setSavedTrials(readFromStorage());
+          }
+        });
     } else {
       setSavedTrials(readFromStorage());
     }
