@@ -123,6 +123,13 @@ body {
   }
 }
 
+@layer utilities {
+  /* Reusable amber focus ring — apply to buttons, links, cards */
+  .focus-ring-amber {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-ivory;
+  }
+}
+
 /* =========================================================
    ANIMATIONS
    ========================================================= */

@@ -98,7 +98,7 @@ export default function SignUpPage() {
       <button
         type="button"
         onClick={handleGoogleSignUp}
-        className="w-full flex items-center justify-center bg-white border border-warm-gray text-navy text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 hover:bg-slate-50 active:scale-[0.98]"
+        className="w-full flex items-center justify-center bg-white border border-warm-gray text-navy text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 ease-out hover:bg-amber/5 hover:border-amber/30 active:scale-[0.98] focus-ring-amber"
       >
         <GoogleIcon />
         Sign up with Google
@@ -125,7 +125,7 @@ export default function SignUpPage() {
               setName(e.target.value);
               if (errorMsg) setErrorMsg('');
             }}
-            className="w-full border border-warm-gray rounded-xl px-4 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber bg-transparent transition-colors"
+            className="w-full border border-warm-gray rounded-xl px-4 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber focus-visible:ring-2 focus-visible:ring-amber/40 bg-transparent transition-colors"
           />
         </div>
 
@@ -145,7 +145,7 @@ export default function SignUpPage() {
               setEmail(e.target.value);
               if (errorMsg) setErrorMsg('');
             }}
-            className="w-full border border-warm-gray rounded-xl px-4 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber bg-transparent transition-colors"
+            className="w-full border border-warm-gray rounded-xl px-4 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber focus-visible:ring-2 focus-visible:ring-amber/40 bg-transparent transition-colors"
           />
         </div>
         
@@ -166,12 +166,12 @@ export default function SignUpPage() {
                 setPassword(e.target.value);
                 if (errorMsg) setErrorMsg('');
               }}
-              className="w-full border border-warm-gray rounded-xl pl-4 pr-11 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber bg-transparent transition-colors"
+              className="w-full border border-warm-gray rounded-xl pl-4 pr-11 py-3 text-sm text-navy placeholder:text-slate-400 focus:outline-none focus:border-amber focus-visible:ring-2 focus-visible:ring-amber/40 bg-transparent transition-colors"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus-ring-amber rounded-md p-0.5"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -181,7 +181,7 @@ export default function SignUpPage() {
         
         <button 
           type="submit" 
-          className="w-full relative overflow-hidden bg-amber text-white text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-glow-amber active:scale-[0.98] mt-2"
+          className="w-full relative overflow-hidden bg-amber text-white text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 hover:scale-[1.02] hover:shadow-glow-amber active:scale-[0.98] mt-2 focus-ring-amber"
           disabled={loading}
         >
           {loading ? 'Creating account...' : 'Create Account'}

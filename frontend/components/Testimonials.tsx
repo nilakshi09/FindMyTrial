@@ -101,7 +101,7 @@ export default function Testimonials() {
           {testimonials.map((t) => (
             <motion.div
               key={t.name}
-              className="testimonial-card group relative flex flex-col bg-white/80 backdrop-blur-sm border border-warm-gray/60 rounded-[20px] p-10 shadow-[0_4px_24px_rgba(15,31,61,0.06)] transition-all duration-[350ms] hover:-translate-y-2 hover:shadow-[0_20px_48px_rgba(15,31,61,0.12)] hover:border-amber/40"
+              className="testimonial-card group relative flex flex-col bg-white/80 backdrop-blur-sm border border-warm-gray/60 rounded-[20px] p-10 shadow-[0_4px_24px_rgba(15,31,61,0.06)] transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:shadow-glow-amber hover:border-amber/40 focus-ring-amber"
               style={{
                 transitionTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               }}

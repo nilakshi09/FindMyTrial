@@ -66,14 +66,14 @@ export default function Navbar() {
             <a
               key={link.href}
               href={link.href}
-              className="nav-link-underline text-[13px] font-medium text-slate-500 hover:text-navy transition-colors duration-300 tracking-[0.02em] uppercase"
+              className="nav-link-underline text-[13px] font-medium text-slate-500 hover:text-navy transition-colors duration-300 tracking-[0.02em] uppercase focus-ring-amber"
             >
               {link.label}
             </a>
           ))}
           <Link
             href="/saved"
-            className="relative flex items-center gap-1.5 nav-link-underline text-[13px] font-medium text-slate-500 hover:text-navy transition-colors duration-300 tracking-[0.02em] uppercase"
+            className="relative flex items-center gap-1.5 nav-link-underline text-[13px] font-medium text-slate-500 hover:text-navy transition-colors duration-300 tracking-[0.02em] uppercase focus-ring-amber"
           >
             Saved Trials
             {savedCount > 0 && (
@@ -84,7 +84,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/alerts"
-            className="nav-link-underline text-[13px] font-medium text-slate-500 hover:text-navy transition-colors duration-300 tracking-[0.02em] uppercase"
+            className="nav-link-underline text-[13px] font-medium text-slate-500 hover:text-navy transition-colors duration-300 tracking-[0.02em] uppercase focus-ring-amber"
           >
             Alerts
           </Link>
@@ -95,7 +95,7 @@ export default function Navbar() {
               </span>
               <button
                 onClick={() => signOut()}
-                className="relative overflow-hidden bg-ivory border border-warm-gray text-navy text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-warm-gray hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 tracking-wide"
+                className="relative overflow-hidden bg-ivory border border-warm-gray text-navy text-[13px] font-semibold px-6 py-2.5 rounded-full hover:bg-warm-gray hover:border-amber/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 ease-out tracking-wide focus-ring-amber"
               >
                 Sign Out
               </button>
@@ -103,7 +103,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => signIn()}
-              className="relative overflow-hidden bg-amber text-white text-[13px] font-semibold px-6 py-2.5 rounded-full hover:shadow-glow-amber hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 tracking-wide"
+              className="relative overflow-hidden bg-amber text-white text-[13px] font-semibold px-6 py-2.5 rounded-full hover:shadow-glow-amber hover:brightness-110 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 ease-out tracking-wide focus-ring-amber"
             >
               <span className="relative z-10">Sign In</span>
               <motion.div

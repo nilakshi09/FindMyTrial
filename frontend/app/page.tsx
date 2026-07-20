@@ -10,6 +10,7 @@ import Testimonials from '@/components/Testimonials';
 import FAQ from '@/components/FAQ';
 import FinalCTA from '@/components/FinalCTA';
 import Footer from '@/components/Footer';
+import BackgroundDecor from '@/components/BackgroundDecor';
 import type { TrialData } from '@/components/TrialCard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -80,7 +81,8 @@ export default function Home() {
   }, [nextPageToken, isLoadingMore, lastSearchedQuery, location]);
 
   return (
-    <main id="main-content" className="bg-ivory min-h-screen">
+    <main id="main-content" className="relative bg-ivory min-h-screen">
+      <BackgroundDecor />
       <Navbar />
       <Hero onSearch={handleSearch} location={location} onLocationChange={setLocation} isLoading={isLoading} />
       <div className="flex justify-center p-4">

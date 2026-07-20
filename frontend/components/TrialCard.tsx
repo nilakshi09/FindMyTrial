@@ -142,11 +142,11 @@ export default function TrialCard({ trial }: { trial: TrialData }) {
 
   return (
     <motion.div
-      className="group relative flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.05)] border border-warm-gray transition-colors duration-300 hover:border-amber/30"
+      className="group relative flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.05)] border border-warm-gray transition-all duration-300 ease-out hover:border-amber/30"
       whileHover={{
         y: -6,
-        scale: 1.01,
-        boxShadow: '0 12px 40px rgba(0,0,0,0.10), 0 0 0 1px rgba(200,146,42,0.08)',
+        scale: 1.02,
+        boxShadow: '0 12px 40px rgba(0,0,0,0.10), 0 0 24px 4px rgba(200,146,42,0.18)',
       }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
     >
@@ -226,16 +226,16 @@ export default function TrialCard({ trial }: { trial: TrialData }) {
             href={`https://clinicaltrials.gov/study/${trial.nctId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 text-sm font-medium text-navy border border-navy/80 rounded-xl px-4 py-2.5 hover:bg-navy/5 hover:border-navy transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber/50 text-center"
+            className="flex-1 text-sm font-medium text-navy border border-navy/80 rounded-xl px-4 py-2.5 hover:bg-navy/5 hover:border-navy transition-all duration-200 ease-out focus-ring-amber text-center"
           >
             Learn More
           </a>
           <button
             onClick={handleSaveToggle}
-            className={`flex flex-1 justify-center items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border transition-colors ${
+            className={`flex flex-1 justify-center items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border transition-all duration-200 ease-out focus-ring-amber ${
               saved
-                ? 'border-amber bg-amber/10 text-amber font-medium'
-                : 'border-warm-gray text-slate-500 hover:border-amber hover:text-amber'
+                ? 'border-amber bg-amber/10 text-amber font-medium hover:bg-amber/15 hover:scale-105'
+                : 'border-warm-gray text-slate-500 hover:border-amber hover:text-amber hover:bg-amber/5 hover:scale-105'
             }`}
             aria-label={saved ? 'Remove from saved trials' : 'Save this trial'}
           >
@@ -255,7 +255,7 @@ export default function TrialCard({ trial }: { trial: TrialData }) {
           <div className="relative" ref={shareMenuRef} onKeyDown={e => { if (e.key === 'Escape') setShowShareMenu(false); }}>
             <button
               onClick={() => setShowShareMenu(p => !p)}
-              className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-warm-gray text-slate-500 hover:border-amber hover:text-amber transition-colors"
+              className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-warm-gray text-slate-500 hover:border-amber hover:text-amber hover:bg-amber/5 hover:scale-105 transition-all duration-200 ease-out focus-ring-amber"
               aria-label="Share this trial"
             >
               <span>↗</span>

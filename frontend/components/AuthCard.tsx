@@ -25,7 +25,7 @@ export default function AuthCard({
       </Link>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.05)] border border-warm-gray p-8 md:p-10">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.05)] border border-warm-gray p-8 md:p-10 hover:shadow-md transition-shadow duration-300 ease-out card-hover-glow">
         {children}
       </div>
 
@@ -34,14 +34,14 @@ export default function AuthCard({
         {bottomLinkText && bottomLinkActionText && bottomLinkHref && (
           <div className="text-center text-sm text-slate-500">
             {bottomLinkText}{' '}
-            <Link href={bottomLinkHref} className="text-navy font-semibold hover:underline transition-colors">
+            <Link href={bottomLinkHref} className="text-navy font-semibold hover:underline transition-colors focus-ring-amber">
               {bottomLinkActionText}
             </Link>
           </div>
         )}
         
         <div className="text-center">
-          <Link href="/" className="text-sm font-medium text-slate-500 hover:text-navy transition-colors">
+          <Link href="/" className="text-sm font-medium text-slate-500 hover:text-navy transition-colors focus-ring-amber">
             &larr; Back to home
           </Link>
         </div>

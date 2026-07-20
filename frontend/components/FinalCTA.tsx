@@ -84,20 +84,21 @@ export default function FinalCTA() {
             onMouseLeave={() => setHovering(false)}
             animate={hovering ? { scale: 1.04 } : { scale: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="relative inline-block text-white text-base font-semibold px-10 py-4 rounded-full overflow-hidden shadow-[0_0_20px_4px_rgba(200,146,42,0.2)] hover:shadow-[0_0_36px_8px_rgba(200,146,42,0.35)] transition-shadow duration-300"
+            className="relative inline-block text-white text-base font-semibold px-10 py-4 rounded-full overflow-hidden shadow-[0_0_20px_4px_rgba(200,146,42,0.2)] hover:shadow-[0_0_36px_8px_rgba(200,146,42,0.35)] transition-shadow duration-300 focus-ring-amber"
             style={{
               background: 'linear-gradient(135deg, #C8922A 0%, #E8B84A 50%, #C8922A 100%)',
             }}
           >
-            {/* Shimmer overlay on hover */}
+            {/* Shimmer overlay on hover — uses global shimmer-sweep keyframe */}
             <span
               className={`absolute inset-0 transition-opacity duration-500 ${
                 hovering ? 'opacity-100' : 'opacity-0'
               }`}
               style={{
-                background:
-                  'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)',
-                animation: hovering ? 'shimmer 1.5s ease-in-out infinite' : 'none',
+                backgroundImage:
+                  'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                backgroundSize: '200% 100%',
+                animation: hovering ? 'shimmer-sweep 1.8s ease-in-out infinite' : 'none',
               }}
             />
             <span className="relative z-[1]">Find My Trial Now</span>
@@ -115,17 +116,7 @@ export default function FinalCTA() {
         </motion.p>
       </div>
 
-      {/* Inline shimmer keyframes */}
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-      `}</style>
+
     </section>
   );
 }

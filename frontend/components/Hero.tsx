@@ -283,8 +283,18 @@ export default function Hero({ onSearch, location, onLocationChange, isLoading }
             <button
               type="submit"
               disabled={!isQueryValid || isLoading}
-              className={`mr-2.5 relative overflow-hidden bg-amber text-white text-sm font-semibold px-6 py-3 md:px-7 md:py-3.5 rounded-xl transition-all duration-300 shrink-0 ${!isQueryValid || isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 hover:scale-[1.03] hover:shadow-glow-amber active:scale-[0.98]'}`}
+              className={`mr-2.5 group/btn relative overflow-hidden bg-amber text-white text-sm font-semibold px-6 py-3 md:px-7 md:py-3.5 rounded-xl transition-all duration-300 ease-out shrink-0 focus-ring-amber ${!isQueryValid || isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 hover:scale-[1.03] hover:shadow-glow-amber active:scale-[0.98]'}`}
             >
+              {/* Shimmer sweep on hover */}
+              <span
+                className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 pointer-events-none"
+                style={{
+                  backgroundImage: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer-sweep 1.8s ease-in-out',
+                }}
+              />
+              <span className="relative z-[1]">
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -293,6 +303,7 @@ export default function Hero({ onSearch, location, onLocationChange, isLoading }
               ) : (
                 'Find My Trial'
               )}
+              </span>
             </button>
 
           </div>
@@ -385,10 +396,11 @@ export default function Hero({ onSearch, location, onLocationChange, isLoading }
                 disabled={isLoading}
                 className="text-xs px-3.5 py-1.5 rounded-full border border-warm-gray
                            text-slate-500 hover:border-amber/70 hover:text-amber
-                           transition-all duration-300
+                           transition-all duration-300 ease-out
                            disabled:opacity-40 disabled:cursor-not-allowed
                            bg-white/50 backdrop-blur-sm shadow-xs
-                           hover:shadow-sm hover:bg-white/70"
+                           hover:shadow-sm hover:bg-white/70 hover:scale-[1.03]
+                           focus-ring-amber"
               >
                 {example}
               </button>

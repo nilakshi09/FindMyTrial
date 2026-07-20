@@ -86,7 +86,7 @@ export default function FAQ() {
             <motion.div key={i} variants={itemVariants}>
               <button
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between py-6 text-left group hover:bg-[#F5EFE6]/80 transition-colors duration-300 px-3 -mx-3 rounded-lg"
+                className="w-full flex items-center justify-between py-6 text-left group hover:bg-[#F5EFE6]/80 transition-colors duration-300 ease-out px-3 -mx-3 rounded-lg focus-ring-amber"
                 aria-expanded={openIndex === i}
                 aria-controls={`faq-answer-${i}`}
               >
