@@ -85,14 +85,6 @@ export default function Home() {
       <BackgroundDecor />
       <Navbar />
       <Hero onSearch={handleSearch} location={location} onLocationChange={setLocation} isLoading={isLoading} />
-      <div className="flex justify-center p-4">
-        <button 
-          onClick={() => toast({ title: 'Toast works!', description: 'shadcn/ui toast is wired.' })}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Test Toast
-        </button>
-      </div>
       <div id="search-results">
         <SearchResults
           results={results}
